@@ -1,6 +1,7 @@
 using Clock_API.Data;
 using Clock_API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Clock_API.Controllers
 {
@@ -21,12 +22,62 @@ namespace Clock_API.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterPoint(Ponto ponto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             _appDbcontext.Pontos.Add(ponto);
             await _appDbcontext.SaveChangesAsync();
 
-            return Ok(ponto);
+            return Created("criado", ponto);
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Ponto>>> FindAllPoints()
+        {
+            var Horarios = await _appDbcontext.Pontos.ToListAsync();
+
+            return Ok(Horarios);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Ponto>> FindOnePoint(int id)
+        {
+            var horario = await _appDbcontext.Pontos.FindAsync(id);
+
+            if (horario == null)
+            {
+                return NotFound("Nenhum registro");
+            }
+            return Ok(horario);
+        }
+
+        //nao funciona
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePoint(int id)
+        {
+            var ponto = await _appDbcontext.Pontos.FindAsync(id);
+
+            _appDbcontext.Pontos.Remove(ponto);
+            await _appDbcontext.SaveChangesAsync();
+
+            return Ok("Deletado!");
+        }
+
+        //gustavo cateno
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> UpdatePoint(int id, [FromBody] Ponto pontoCurrent)
+        // {
+        //     var pontoAtual = await _appDbcontext.Pontos.FindAsync(id);
+
+        //     _appDbcontext.Entry(pontoAtual).CurrentValues.SetValues(pontoCurrent);
+
+        //     await _appDbcontext.SaveChangesAsync();
+        //     return StatusCode(201, pontoAtual);
+        // }
+
+        //eu fiz
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePoint(Ponto ponto, int id)
         {
@@ -38,36 +89,6 @@ namespace Clock_API.Controllers
             await _appDbcontext.SaveChangesAsync();
 
             return Ok(req);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> FindOnePoint(int id)
-        {
-            var ponto = await _appDbcontext.Pontos.FindAsync(id);
-
-            await _appDbcontext.SaveChangesAsync();
-            return Ok(ponto);
-        }
-
-        //nao funciona
-        [HttpGet]
-        public async Task<IActionResult> FindAllPoint()
-        {
-            var ponto = await _appDbcontext.Pontos.FindAsync();
-
-            await _appDbcontext.SaveChangesAsync();
-            return Ok(ponto);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePoint(int id)
-        {
-            var ponto = await _appDbcontext.Pontos.FindAsync(id);
-
-            _appDbcontext.Pontos.Remove(ponto);
-            await _appDbcontext.SaveChangesAsync();
-
-            return Ok(ponto);
         }
     }
 }
