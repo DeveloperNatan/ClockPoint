@@ -20,7 +20,3 @@ v
 v
 [PostgreSQL Database] <-- Banco de dados onde os dados são armazenados
 
-//em casa
-"ConnectionStrings": {
-"AppDbConnectionString": "Host=localhost;Port=5432;Database=ClockDb;Username=postgres;Password=amnesia"
-}
